@@ -7,10 +7,18 @@ exports.get = (req, res) => {
 
 }
 
+exports.getCategory = (req, res) => {
+
+    Category.query()
+        .findOne("id", req.params.categoryId)
+        .then(result => res.json(result))
+
+}
+
 exports.getProducts = (req, res) => {
 
     Category.relatedQuery("products")
-        .for(req.params.category)
+        .for(req.params.categoryId)
         .then(result => res.json(result))
 
 }
