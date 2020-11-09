@@ -22,3 +22,11 @@ exports.getProducts = (req, res) => {
         .then(result => res.json(result))
 
 }
+
+exports.getProducents = (req, res) => {
+
+    Category.relatedQuery("producents")
+        .for(req.params.categoryId)
+        .then(result => res.json(result))
+
+}
