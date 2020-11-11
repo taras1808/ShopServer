@@ -1,8 +1,8 @@
 const { Model } = require('objection');
 
-class Producent extends Model {
+class Producer extends Model {
 	static get tableName() {
-		return 'producent';
+		return 'producer';
 	}
 
 	static get relationMappings() {
@@ -13,10 +13,10 @@ class Producent extends Model {
 				relation: Model.HasOneThroughRelation,
 				modelClass: Category,
 				join: {
-					from: 'producent.id',
+					from: 'producer.id',
 					through: {
-						from: 'producent_category.producent_id',
-						to: 'producent_category.category_id'
+						from: 'producer_category.producer_id',
+						to: 'producer_category.category_id'
 					},
 					to: 'category.id'
 				}
@@ -25,12 +25,12 @@ class Producent extends Model {
 				relation: Model.HasManyRelation,
 				modelClass: Product,
 				join: {
-					from: 'producent.id',
-					to: 'product.producent_id'
+					from: 'producer.id',
+					to: 'product.producer_id'
 				}
 			}
 		}
 	}
 }
 
-module.exports = Producent
+module.exports = Producer
