@@ -7,6 +7,7 @@ class Product extends Model {
 
 	static get relationMappings() {
 		const Category = require('./Category')
+		const Producer = require('./Producer')
 		return {
 			category: {
 				relation: Model.BelongsToOneRelation,
@@ -14,6 +15,14 @@ class Product extends Model {
 				join: {
 					from: 'product.category_id',
 					to: 'category.id'
+				}
+			},
+			producer: {
+				relation: Model.BelongsToOneRelation,
+				modelClass: Producer,
+				join: {
+					from: 'product.producer_id',
+					to: 'producer.id'
 				}
 			}
 		}
