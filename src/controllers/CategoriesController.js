@@ -96,10 +96,6 @@ exports.getProducts = (req, res) => {
             Category.relatedQuery('products')
                 .for(req.params.categoryId)
                 .orderBy(orderBy, order)
-                .then(result => {
-                        // console.log(result)
-                return result
-                })
                 .then(result => res.json(result))
         }
     }
