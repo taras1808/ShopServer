@@ -40,3 +40,17 @@ exports.getProduct = (req, res) => {
         .then(result => res.json(result))
 
 }
+
+exports.update =  (req, res) => {
+
+    Product.query()
+        .patchAndFetchById(req.params.productId, {
+            name: req.body.name,
+            price: req.body.price,
+            // image: path,
+            category_id: req.body.category_id,
+            producer_id: req.body.producer_id
+        })
+        .then(result => res.json(result))
+
+}
