@@ -1,9 +1,11 @@
+const Category = require('../models/Category')
 const Producer = require('../models/Producer')
 
-exports.getProducer = async (req, res) => {
+exports.get = (req, res) => {
 
     Producer.query()
         .then(result => res.json(result))
+
 }
 
 exports.create = async (req, res) => {
@@ -29,6 +31,16 @@ exports.getCategories = async (req, res) => {
         .then(result => res.json(result))
 }
 
+exports.getProducer = async (req, res) => {
+
+    const producer = await Producer.query()
+        .findOne('id', req.params.producerId)
+
+    producer.categories = await Producer.relatedQuery('categories')
+        .for(req.params.producerId)
+
+    res.json(producer)
+}
 
 exports.update = async (req, res) => {
 
@@ -48,4 +60,11 @@ exports.update = async (req, res) => {
     })
 
     res.json(producer)
+}
+
+exports.delete = async (req, res) => {
+
+    Producer.query()
+        .deleteById(req.params.producerId)
+        .then(result => res.json(result))
 }
