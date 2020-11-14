@@ -1,4 +1,6 @@
 const Product = require('../models/Product')
+const Category = require('../models/Category');
+const Producer = require('../models/Producer')
 
 exports.getProducts = (req, res) => {
 
@@ -33,10 +35,45 @@ exports.create = (req, res) => {
     })
 }
 
-exports.getProduct = (req, res) => {
+exports.getProduct = async (req, res) => {
+
+    const product = await Product.query()
+        .findOne('id', req.params.productId)
+
+    product.category = await Category.query()
+        .findOne('id', product.category_id)
+
+    product.producer = await Producer.query()
+        .findOne('id', product.producer_id)
+
+    delete product["category_id"]
+    delete product["producer_id"]
+
+    res.json(product)
+}
+
+exports.update =  (req, res) => {
 
     Product.query()
-        .findOne("id", req.params.productId)
+        .patchAndFetchById(req.params.productId, {
+            name: req.body.name,
+            price: req.body.price,
+            // image: path,
+            category_id: req.body.category_id,
+            producer_id: req.body.producer_id
+        })
+        .then(result => res.json(result))
+
+}
+
+exports.delete =  (req, res) => {
+
+    Product.query()
+        .deleteById(req.params.productId)
+        .then(e => {
+            console.log(e)
+            return e
+        })
         .then(result => res.json(result))
 
 }
