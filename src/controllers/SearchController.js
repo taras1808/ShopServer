@@ -13,40 +13,21 @@ exports.getCategories = async (req, res) => {
 
 exports.getProducers = async (req, res) => {
 
-    Product.relatedQuery('producer').for(
-        Product.query()
-            .where(raw('lower("name")'), 'like', `%${req.query.q.toLowerCase()}%`)
-    )
-        .distinct()
-        .then(result => res.json(result))
+    let query = Producer.query()
+        .joinRelated('products')
+        .groupBy('producer.id', 'producer.name')
+        .where(raw('lower("products"."name")'), 'like', `%${req.query.q.toLowerCase()}%`)
+        .select('producer.id', 'producer.name')
+        .count()
+        .max('price')
+        .min('price')
+        .orderBy('producer.name')
 
-    // let producers = await Producer.query()
+    if (req.query.price) {
+        query = query.andWhereBetween('price', req.query.price.split('-'))
+    } 
 
-    // for (producer of producers) {
-    //     producer.count = (await Product.query()
-    //         .count()
-    //         .where(raw('lower("name")'), 'like', `%${req.query.q.toLowerCase()}%`)
-    //         .where('producer_id', producer.id))[0].count
-    // }
-
-    // res.json(producers.filter(e => e.count !== 0))
-}
-
-exports.getPrices = async (req, res) => {
-    if (req.query.producers) {
-        Product.query()
-            .where(raw('lower("name")'), 'like', `%${req.query.q.toLowerCase()}%`)
-            .whereIn('producer_id', req.query.producers.split(','))
-            .max('price')
-            .min('price')
-            .then(result => res.json(result[0]))
-    } else {
-        Product.query()
-            .where(raw('lower("name")'), 'like', `%${req.query.q.toLowerCase()}%`)
-            .max('price')
-            .min('price')
-            .then(result => res.json(result[0]))
-    }
+    query.then(result => res.json(result))
 }
 
 exports.getProducts = async (req, res) => {

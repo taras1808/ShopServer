@@ -58,6 +58,7 @@ exports.update =  (req, res) => {
         .patchAndFetchById(req.params.productId, {
             name: req.body.name,
             price: req.body.price,
+            old_price: req.body.old_price,
             // image: path,
             category_id: req.body.category_id,
             producer_id: req.body.producer_id
@@ -70,10 +71,6 @@ exports.delete =  (req, res) => {
 
     Product.query()
         .deleteById(req.params.productId)
-        .then(e => {
-            console.log(e)
-            return e
-        })
         .then(result => res.json(result))
 
 }

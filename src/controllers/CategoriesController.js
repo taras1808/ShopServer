@@ -1,4 +1,6 @@
 const Category = require('../models/Category')
+const Producer = require('../models/Producer')
+const Product = require('../models/Product')
 
 exports.getCategories = (req, res) => {
 
@@ -12,25 +14,6 @@ exports.getCategory = (req, res) => {
     Category.query()
         .findOne('id', req.params.categoryId)
         .then(result => res.json(result))
-
-}
-
-exports.getPrices = (req, res) => {
-
-    if (req.query.producers) {
-        Category.relatedQuery('products')
-            .for(req.params.categoryId)
-            .whereIn('producer_id', req.query.producers.split(','))
-            .max('price')
-            .min('price')
-            .then(result => res.json(result[0]))
-    } else {
-        Category.relatedQuery('products')
-            .for(req.params.categoryId)
-            .max('price')
-            .min('price')
-            .then(result => res.json(result[0]))
-    }
 
 }
 
@@ -102,10 +85,29 @@ exports.getProducts = (req, res) => {
 
 }
 
-exports.getProducers = (req, res) => {
-
-    Category.relatedQuery('producers')
+exports.getProducers = async (req, res) => {
+    
+    const producers = await Category.relatedQuery('producers')
         .for(req.params.categoryId)
-        .then(result => res.json(result))
+        .orderBy('producer.name')
 
+    let query = Producer.relatedQuery('products')
+        .count()
+        .max('price')
+        .min('price')
+        .first()
+
+    if (req.query.price) {
+        query = query.whereBetween('price', req.query.price.split('-'))
+    }
+
+    for(producer of producers) {
+        const obj = await query.for(producer)
+
+        producer.count = obj.count
+        producer.max = obj.max ? obj.max : 0
+        producer.min = obj.min ? obj.min : 0
+    }
+
+    res.json(producers)
 }
