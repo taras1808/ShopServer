@@ -14,6 +14,10 @@ app.all('/*', function(req, res, next) {
 	next();
 });
 
+// app.use('/*', function(req, res, next) {
+// 	setTimeout(function(){ next() }, 1000);
+// })
+
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(express.static('public'))
