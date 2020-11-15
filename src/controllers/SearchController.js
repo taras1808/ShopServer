@@ -13,21 +13,34 @@ exports.getCategories = async (req, res) => {
 
 exports.getProducers = async (req, res) => {
 
-    let query = Producer.query()
+    const query = Producer.query()
         .joinRelated('products')
         .groupBy('producer.id', 'producer.name')
         .where(raw('lower("products"."name")'), 'like', `%${req.query.q.toLowerCase()}%`)
         .select('producer.id', 'producer.name')
         .count()
-        .max('price')
-        .min('price')
         .orderBy('producer.name')
 
     if (req.query.price) {
         query = query.andWhereBetween('price', req.query.price.split('-'))
     } 
 
-    query.then(result => res.json(result))
+    const producers = await query
+
+    for (producer of producers) {
+
+        const { max, min } = await Producer.relatedQuery('products')
+            .for(producer)
+            .where(raw('lower("name")'), 'like', `%${req.query.q.toLowerCase()}%`)
+            .max('price')
+            .min('price')
+            .first()
+
+        producer.max = max
+        producer.min = min
+    }
+
+    res.json(producers)
 }
 
 exports.getProducts = async (req, res) => {
