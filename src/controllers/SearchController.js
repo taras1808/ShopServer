@@ -13,7 +13,7 @@ exports.getCategories = async (req, res) => {
 
 exports.getProducers = async (req, res) => {
 
-    const query = Producer.query()
+    let query = Producer.query()
         .joinRelated('products')
         .groupBy('producer.id', 'producer.name')
         .where(raw('lower("products"."name")'), 'like', `%${req.query.q.toLowerCase()}%`)
