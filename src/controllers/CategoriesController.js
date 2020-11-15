@@ -91,22 +91,32 @@ exports.getProducers = async (req, res) => {
         .for(req.params.categoryId)
         .orderBy('producer.name')
 
-    let query = Producer.relatedQuery('products')
-        .count()
-        .max('price')
-        .min('price')
-        .first()
+    for (producer of producers) {
 
-    if (req.query.price) {
-        query = query.whereBetween('price', req.query.price.split('-'))
-    }
+        const { hasProducts } = await Producer.relatedQuery('products')
+            .for(producer)
+            .count('*', { as: 'hasProducts' })
+            .first()
 
-    for(producer of producers) {
-        const obj = await query.for(producer)
+        let queryCount = Producer.relatedQuery('products')
+            .count()
+            .first()
 
-        producer.count = obj.count
-        producer.max = obj.max ? obj.max : 0
-        producer.min = obj.min ? obj.min : 0
+        if (req.query.price) {
+            queryCount = queryCount.whereBetween('price', req.query.price.split('-'))
+        }
+        
+        const { count } = await queryCount.for(producer)
+        const { max, min } = await Producer.relatedQuery('products')
+            .max('price')
+            .min('price')
+            .first().for(producer)
+
+        producer.count = count
+        producer.max = max ? max : '0'
+        producer.min = min ? min : '0'
+
+        producer.hasProducts = hasProducts
     }
 
     res.json(producers)
