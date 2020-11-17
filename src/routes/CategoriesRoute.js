@@ -7,6 +7,6 @@ router.get("/:categoryId", categoriesController.getCategory)
 
 router.get("/:categoryId/products", categoriesController.getProducts)
 
-router.get("/:categoryId/producers", categoriesController.getProducers)
+router.get("/:categoryId/fitlers", categoriesController.getFilters)
 
 module.exports = router

@@ -1,5 +1,4 @@
 const Product = require('../models/Product')
-const Producer = require('../models/Producer')
 const { raw } = require('objection');
 
 exports.getCategories = async (req, res) => {
