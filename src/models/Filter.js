@@ -1,36 +1,40 @@
 const { Model } = require('objection');
 
-class Producer extends Model {
+class Filter extends Model {
 	static get tableName() {
-		return 'producer';
+		return 'filter';
 	}
+
+	static get idColumn() {
+		return 'id';
+    }
 
 	static get relationMappings() {
 		const Category = require('./Category')
-		const Product = require('./Product')
+		const Option = require('./Option')
 		return {
 			categories: {
 				relation: Model.HasOneThroughRelation,
 				modelClass: Category,
 				join: {
-					from: 'producer.id',
+					from: 'filter.id',
 					through: {
-						from: 'producer_category.producer_id',
-						to: 'producer_category.category_id'
+						from: 'filter_category.filter_id',
+						to: 'filter_category.category_id'
 					},
 					to: 'category.id'
 				}
 			},
-			products: {
+			options: {
 				relation: Model.HasManyRelation,
-				modelClass: Product,
+				modelClass: Option,
 				join: {
-					from: 'producer.id',
-					to: 'product.producer_id'
+					from: 'filter.id',
+					to: 'option.filter_id'
 				}
 			}
 		}
 	}
 }
 
-module.exports = Producer
+module.exports = Filter

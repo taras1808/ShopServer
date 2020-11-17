@@ -5,9 +5,13 @@ class Product extends Model {
 		return 'product';
 	}
 
+	static get idColumn() {
+		return 'id';
+	}
+
 	static get relationMappings() {
 		const Category = require('./Category')
-		const Producer = require('./Producer')
+		const Option = require('./Option')
 		return {
 			category: {
 				relation: Model.BelongsToOneRelation,
@@ -17,14 +21,18 @@ class Product extends Model {
 					to: 'category.id'
 				}
 			},
-			producer: {
-				relation: Model.BelongsToOneRelation,
-				modelClass: Producer,
+			options: {
+				relation: Model.HasOneThroughRelation,
+				modelClass: Option,
 				join: {
-					from: 'product.producer_id',
-					to: 'producer.id'
+					from: 'product.id',
+					through: {
+						from: 'filter_product_option.product_id',
+						to: 'filter_product_option.option_id'
+					},
+					to: 'option.id'
 				}
-			}
+			},
 		}
 	}
 }

@@ -11,7 +11,7 @@ class Category extends Model {
       
     static get relationMappings() {
 		const Product = require('./Product')
-		const Producer = require('./Producer')
+		const Filter = require('./Filter')
 		return {
 			products: {
 				relation: Model.HasManyRelation,
@@ -21,16 +21,16 @@ class Category extends Model {
 					to: 'product.category_id'
 				}
 			},
-			producers: {
+			filters: {
 				relation: Model.HasOneThroughRelation,
-				modelClass: Producer,
+				modelClass: Filter,
 				join: {
 					from: 'category.id',
 					through: {
-						from: 'producer_category.category_id',
-						to: 'producer_category.producer_id'
+						from: 'filter_category.category_id',
+						to: 'filter_category.filter_id'
 					},
-					to: 'producer.id'
+					to: 'filter.id'
 				}
 			},
 		}

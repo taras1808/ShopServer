@@ -1,6 +1,5 @@
 const Product = require('../models/Product')
 const Category = require('../models/Category');
-const Producer = require('../models/Producer')
 
 exports.getProducts = (req, res) => {
 
@@ -42,12 +41,6 @@ exports.getProduct = async (req, res) => {
 
     product.category = await Category.query()
         .findOne('id', product.category_id)
-
-    product.producer = await Producer.query()
-        .findOne('id', product.producer_id)
-
-    delete product["category_id"]
-    delete product["producer_id"]
 
     res.json(product)
 }
