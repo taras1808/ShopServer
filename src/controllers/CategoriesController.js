@@ -19,8 +19,10 @@ exports.getCategory = (req, res) => {
 }
 
 exports.getProducts = async (req, res) => {
+
     let orderBy
     let order
+    
     switch (req.query.orderBy) {
         case '0':
             orderBy = 'id'
