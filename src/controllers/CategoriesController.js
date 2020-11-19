@@ -50,7 +50,7 @@ exports.getProducts = async (req, res) => {
             break
         default:
             orderBy = 'id'
-            order = 'ASC'
+            order = 'DESC'
             break
     }
 
@@ -62,7 +62,7 @@ exports.getProducts = async (req, res) => {
         .where('category_id', req.params.categoryId)
         .orderBy(orderBy, order)
 
-    for (filter of filters) {
+    for (let filter of filters) {
         const queryParams = req.query[filter.name]
         if (!queryParams) continue
 
@@ -89,20 +89,22 @@ exports.getFilters = async (req, res) => {
         .for(req.params.categoryId)
         .orderBy('id')
 
-    for (filter of filters) {
+    for (let filter of filters) {
         switch (filter.type) {
             case 0:
                 const options = await Filter.relatedQuery('options')
                     .for(filter)
-                let exist = []
-                for (option of options) {
-                    option.products_quantity = (await Option.relatedQuery('products')
+                const exist = []
+                for (let option of options) {
+                    const { count } = await Option.relatedQuery('products')
                         .for(option)
                         .where('category_id', req.params.categoryId)
                         .count()
-                        .first())['count']
-                    if (option.products_quantity != 0)
+                        .first()
+                    if (parseInt(count) !== 0) {
+                        option.products_quantity = count
                         exist.push(option)
+                    }
                 }
                 filter.options = exist
                 break
@@ -118,11 +120,12 @@ exports.getFilters = async (req, res) => {
                 break
         }
     }
+    
 
-    for (filter of filters) {
+    for (let filter of filters) {
         switch(filter.type) {
             case 0:
-                for (option of filter.options) {
+                for (let option of filter.options) {
 
                     let query =  Product.query().joinRelated('options', { alias: 'option' })
                         .where('option.id', option.id)
@@ -148,15 +151,15 @@ exports.getFilters = async (req, res) => {
                         }
                     }
 
-                    option.products_quantity = (await query.count()
-                        .first())['count']
+                    const { count } = await query.count().first()
+                    option.products_quantity = count
                 }
                 break
             case 1:
                 let query = Product.query().joinRelated('options', { alias: 'option' })
                         .where('category_id', req.params.categoryId)
 
-                for (next of filters) {
+                for (let next of filters) {
                     if (next === filter) continue
 
                     const queryParams = req.query[next.name]
