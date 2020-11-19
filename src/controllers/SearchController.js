@@ -18,14 +18,14 @@ exports.getFilters = async (req, res) => {
     const filters = await Filter.query()
         .orderBy('id')
 
-    for (filter of filters) {
+    for (let filter of filters) {
         switch (filter.type) {
             case 0:
                 const options = await Filter.relatedQuery('options')
                     .for(filter)
                     .orderBy('value')
                 let exist = []
-                for (option of options) {
+                for (let option of options) {
                     option.products_quantity = (await Option.relatedQuery('products')
                         .for(option)
                         .where(raw('lower("name")'), 'like', `%${req.query.q ? req.query.q.toLowerCase() : ''}%`)
@@ -48,16 +48,16 @@ exports.getFilters = async (req, res) => {
         }
     }
 
-    for (filter of filters) {
+    for (let filter of filters) {
         switch(filter.type) {
             case 0:
-                for (option of filter.options) {
+                for (let option of filter.options) {
 
                     let query =  Product.query().joinRelated('options', { alias: 'option' })
                         .where('option.id', option.id)
                         .where(raw('lower("name")'), 'like', `%${req.query.q ? req.query.q.toLowerCase() : ''}%`)
 
-                    for (next of filters) {
+                    for (let next of filters) {
                         if (next === filter) continue
 
                         const queryParams = req.query[next.name]
@@ -85,7 +85,7 @@ exports.getFilters = async (req, res) => {
                 let query = Product.query().joinRelated('options', { alias: 'option' })
                     .where(raw('lower("name")'), 'like', `%${req.query.q ? req.query.q.toLowerCase() : ''}%`)
 
-                for (next of filters) {
+                for (let next of filters) {
                     if (next === filter) continue
 
                     const queryParams = req.query[next.name]
@@ -147,7 +147,7 @@ exports.getProducts = async (req, res) => {
             break
         default:
             orderBy = 'id'
-            order = 'ASC'
+            order = 'DESC'
             break
     }
 
@@ -157,7 +157,7 @@ exports.getProducts = async (req, res) => {
     let query = Product.query().joinRelated('options', { alias: 'option' }).orderBy(orderBy, order)
         .where(raw('lower("product"."name")'), 'like', `%${req.query.q ? req.query.q.toLowerCase() : ''}%`)
 
-    for (filter of filters) {
+    for (let filter of filters) {
         const queryParams = req.query[filter.name]
         if (!queryParams) continue
 
@@ -168,7 +168,7 @@ exports.getProducts = async (req, res) => {
                 break
             case 1:
                 const rangeValues = queryParams.split('-').map(e => parseInt(e))
-                query = query.whereBetween(next.name, rangeValues)
+                query = query.whereBetween(filter.name, rangeValues)
                 break
             default:
                 break

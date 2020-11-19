@@ -15,7 +15,7 @@ app.all('/*', function(req, res, next) {
 });
 
 // app.use('/*', function(req, res, next) {
-// 	setTimeout(function(){ next() }, 1000);
+// 	setTimeout(function(){ next() }, 100);
 // })
 
 app.use(bodyParser.urlencoded({ extended: true }))
