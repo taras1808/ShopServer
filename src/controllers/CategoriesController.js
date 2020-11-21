@@ -58,8 +58,9 @@ exports.getProducts = async (req, res) => {
         .for(req.params.categoryId)
         .orderBy('id')
 
-    let query = Product.query().joinRelated('options', { alias: 'option' })
+    let query = Product.query()
         .where('category_id', req.params.categoryId)
+        .joinRelated('options', { alias: 'option' })
         .orderBy(orderBy, order)
 
     for (let filter of filters) {

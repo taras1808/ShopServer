@@ -8,4 +8,6 @@ router.get("/:productId", productsController.getProduct)
 router.put("/:productId", productsController.update)
 router.delete("/:productId", productsController.delete)
 
+router.get("/:productId/options", productsController.getOptions)
+
 module.exports = router
