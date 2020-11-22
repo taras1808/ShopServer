@@ -59,6 +59,7 @@ exports.getProducts = async (req, res) => {
         .orderBy('id')
 
     let query = Product.query()
+        .withGraphFetched('images')
         .where('category_id', req.params.categoryId)
         .joinRelated('options', { alias: 'option' })
         .orderBy(orderBy, order)

@@ -12,6 +12,7 @@ class Product extends Model {
 	static get relationMappings() {
 		const Category = require('./Category')
 		const Option = require('./Option')
+		const ProductImage = require('./ProductImage')
 		return {
 			category: {
 				relation: Model.BelongsToOneRelation,
@@ -31,6 +32,14 @@ class Product extends Model {
 						to: 'filter_product_option.option_id'
 					},
 					to: 'option.id'
+				}
+			},
+			images: {
+				relation: Model.HasManyRelation,
+				modelClass: ProductImage,
+				join: {
+					from: 'product.id',
+					to: 'product_image.product_id'
 				}
 			},
 		}

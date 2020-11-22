@@ -7,6 +7,7 @@ const { raw } = require('objection');
 exports.getProducts = (req, res) => {
 
     Product.query()
+        .withGraphFetched('[category, images]')
         .then(result => res.json(result))
 
 }
@@ -25,7 +26,7 @@ exports.create = async (req, res) => {
         return res.status(400).end()
     }
 
-    if (!req.body.name || req.body.name.length === 0) {
+    if (!req.body.name || req.body.name.length === 0 || req.body.price ===0) {
         return res.status(400).end()
     }
 
@@ -49,28 +50,24 @@ exports.create = async (req, res) => {
         await Knex.raw(`INSERT INTO filter_product_option VALUES(${id}, ${product.id}, ${value})`);
     });
 
-    const file = req.files ? req.files.image : null
-
-    if (file) {
-        file.mv('public/' + file.name, function(err) {
+    if (req.files) {
+        Object.values(req.files).forEach(e => e.mv('public/' + e.name, async (err) => {
             if (err) return res.status(500).json(err)
-            var path = 'http://' + req.hostname + ':' + req.socket.localPort + '/' + file.name
+            var path = 'http://' + req.hostname + ':' + req.socket.localPort + '/' + e.name
             
-            Product.query()
-                .patchAndFetchById(product.id, {
-                    image: path
-                })
-                .then(result => res.json(result))
-        })
-    } else {
-        res.json(product)
+            await Product.relatedQuery('images')
+                .for(product)
+                .insert({image: path})
+        }))
     }
+
+    res.json(product)
 }
 
 exports.getProduct = async (req, res) => {
 
     const product = await Product.query()
-        .withGraphFetched('category')
+        .withGraphFetched('[category, images]')
         .findOne('id', req.params.productId)
 
     res.json(product)
@@ -99,34 +96,43 @@ exports.update = async (req, res) => {
             name: req.body.name,
             price: req.body.price,
             old_price: req.body.old_price,
-            image: req.body.image ?? null,
             category_id: req.body.category_id
         })
 
     await Product.relatedQuery('options').for(product).unrelate()
+    await Product.relatedQuery('images').for(product).delete()
 
-    JSON.parse(req.body.options).forEach(async e => {
+    if (req.body.images)
+        JSON.parse(req.body.images).forEach(async (e) => {
+            await Product.relatedQuery('images')
+                .for(product)
+                .insert({image: e.image})
+        })
+
+    JSON.parse(req.body.options).forEach(async (e) => {
         const [id, value] = e
         const knex = Product.knex();
         await knex.raw(`INSERT INTO filter_product_option VALUES(${id}, ${product.id}, ${value})`);
     });
 
-    const file = req.files ? req.files.file : null
+    if (req.files) {
+        for (let e of Object.values(req.files)) {
+            await e.mv('public/' + e.name, (err) => {
+                if (err) return res.status(500).json(err)
+            })
 
-    if (file) {
-        file.mv('public/' + file.name, function(err) {
-            if (err) return res.status(500).json(err)
-            var path = 'http://' + req.hostname + ':' + req.socket.localPort + '/' + file.name
-            
-            Product.query()
-                .patchAndFetchById(product.id, {
-                    image: path
-                })
-                .then(result => res.json(result))
-        })
-    } else {
-        res.json(product)
+            var path = 'http://' + req.hostname + ':' + req.socket.localPort + '/' + e.name
+                
+            await Product.relatedQuery('images')
+                .for(product)
+                .insert({image: path})
+        }
     }
+
+    Product.query()
+        .withGraphFetched('[category, images]')
+        .findOne('id', req.params.productId)
+        .then(result => res.json(result))
 }
 
 exports.delete =  (req, res) => {

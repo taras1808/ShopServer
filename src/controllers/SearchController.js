@@ -155,6 +155,7 @@ exports.getProducts = async (req, res) => {
         .orderBy('id')
 
     let query = Product.query().joinRelated('options', { alias: 'option' }).orderBy(orderBy, order)
+        .withGraphFetched('images')
         .where(raw('lower("product"."name")'), 'like', `%${req.query.q ? req.query.q.toLowerCase() : ''}%`)
 
     for (let filter of filters) {
