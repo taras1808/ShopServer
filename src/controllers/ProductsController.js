@@ -1,5 +1,6 @@
 const Product = require('../models/Product')
 const Category = require('../models/Category')
+const Option = require('../models/Option')
 const Knex = require('../models/Knex');
 const { raw } = require('objection');
 
@@ -67,8 +68,23 @@ exports.create = async (req, res) => {
 exports.getProduct = async (req, res) => {
 
     const product = await Product.query()
-        .withGraphFetched('[category, images]')
-        .findOne('id', req.params.productId)
+        .withGraphFetched('[category, images, options]')
+        .findOne('product.id', req.params.productId)
+
+    product.options = Array.isArray(product.options) ? product.options : [product.options]
+
+    for(let option of product.options) {
+        const { title } = await Option.relatedQuery('filter')
+            .for(option)
+            .select('title')
+            .first()
+        option.name = title
+    }
+
+    product.items = await Product.query()
+        .where('category_id', product.category_id)
+        .withGraphFetched('images')
+        .whereNot('id', product.id)
 
     res.json(product)
 }
