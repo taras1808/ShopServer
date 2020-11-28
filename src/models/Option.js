@@ -22,7 +22,7 @@ class Option extends Model {
 				}
 			},
 			products: {
-				relation: Model.HasOneThroughRelation,
+				relation: Model.ManyToManyRelation,
 				modelClass: Product,
 				join: {
 					from: 'option.id',
