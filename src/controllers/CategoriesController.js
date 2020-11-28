@@ -61,7 +61,6 @@ exports.getProducts = async (req, res) => {
     let query = Product.query()
         .withGraphFetched('images')
         .where('category_id', req.params.categoryId)
-        .joinRelated('options', { alias: 'option' })
         .orderBy(orderBy, order)
 
     for (let filter of filters) {
@@ -71,11 +70,14 @@ exports.getProducts = async (req, res) => {
         switch (filter.type) {
             case 0:
                 const values = queryParams.split(',').map(e => parseInt(e))
-                query = query.whereIn('option.id', values)
+                query = query.whereExists(
+                    Product.relatedQuery('options')
+                        .whereIn('id', values)
+                )
                 break
             case 1:
                 const rangeValues = queryParams.split('-').map(e => parseInt(e))
-                query = query.whereBetween(next.name, rangeValues)
+                query = query.whereBetween(filter.name, rangeValues)
                 break
             default:
                 break
@@ -123,14 +125,13 @@ exports.getFilters = async (req, res) => {
         }
     }
     
-
     for (let filter of filters) {
         switch(filter.type) {
             case 0:
                 for (let option of filter.options) {
 
-                    let query =  Product.query().joinRelated('options', { alias: 'option' })
-                        .where('option.id', option.id)
+                    let query = Option.relatedQuery('products')
+                        .for(option.id)
                         .where('category_id', req.params.categoryId)
 
                     for (next of filters) {
@@ -142,7 +143,10 @@ exports.getFilters = async (req, res) => {
                         switch(next.type) {
                             case 0:
                                 const values = queryParams.split(',').map(e => parseInt(e))
-                                query = query.whereIn('option.id', values)
+                                query = query.whereExists(
+                                    Product.relatedQuery('options')
+                                        .whereIn('id', values)
+                                )
                                 break
                             case 1:
                                 const rangeValues = queryParams.split('-').map(e => parseInt(e))
@@ -158,7 +162,7 @@ exports.getFilters = async (req, res) => {
                 }
                 break
             case 1:
-                let query = Product.query().joinRelated('options', { alias: 'option' })
+                let query = Product.query()
                         .where('category_id', req.params.categoryId)
 
                 for (let next of filters) {
@@ -170,7 +174,10 @@ exports.getFilters = async (req, res) => {
                     switch(next.type) {
                         case 0:
                             const values = queryParams.split(',').map(e => parseInt(e))
-                            query = query.whereIn('option.id', values)
+                            query = query.whereExists(
+                                Product.relatedQuery('options')
+                                    .whereIn('id', values)
+                            )
                             break
                         case 1:
                             const rangeValues = queryParams.split('-').map(e => parseInt(e))

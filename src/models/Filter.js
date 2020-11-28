@@ -14,7 +14,7 @@ class Filter extends Model {
 		const Option = require('./Option')
 		return {
 			categories: {
-				relation: Model.HasOneThroughRelation,
+				relation: Model.ManyToManyRelation,
 				modelClass: Category,
 				join: {
 					from: 'filter.id',

@@ -22,7 +22,7 @@ class Category extends Model {
 				}
 			},
 			filters: {
-				relation: Model.HasOneThroughRelation,
+				relation: Model.ManyToManyRelation,
 				modelClass: Filter,
 				join: {
 					from: 'category.id',
