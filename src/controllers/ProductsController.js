@@ -70,6 +70,17 @@ exports.getProduct = async (req, res) => {
     const product = await Product.query()
         .withGraphFetched('[category, images, options]')
         .findOne('product.id', req.params.productId)
+    
+    const fetchParent = async (category, parent) => {
+
+        category.parent = await Category.query()
+            .findOne('id', parent)
+
+        if (category.parent && category.parent.parent_id)
+            await fetchParent(category.parent, category.parent.parent_id)
+    }
+
+    await fetchParent(product.category, product.category.parent_id)
 
     product.options = Array.isArray(product.options) ? product.options : [product.options]
 

@@ -4,18 +4,101 @@ const Filter = require('../models/Filter')
 const Option = require('../models/Option')
 
 exports.getCategories = (req, res) => {
-
     Category.query()
         .then(result => res.json(result))
-
 }
 
-exports.getCategory = (req, res) => {
+exports.getRootCategories = async (req, res) => {
+    const categories = await Category.query()
+        .whereNull('parent_id')
 
-    Category.query()
+    for (let category of categories) {
+        category.childrens = await Category.query()
+            .where('parent_id', category.id)
+    }
+
+    res.json(categories)
+}
+
+exports.create = async (req, res) => {
+    const category = await Category.query()
+        .insertAndFetch({
+            name: req.body.name,
+            parent_id: req.body.parent
+        })
+
+    if (req.files && req.files.file) {
+        const file = req.files.file
+        file.mv('public/' + file.name, async (err) => {
+            if (err) return res.status(500).json(err)
+            var path = 'http://' + req.hostname + ':' + req.socket.localPort + '/' + file.name
+            
+            Category.query()
+                .patchAndFetchById(category.id, {
+                    image: path
+                })
+                .then(result => res.json(result))
+        })
+    } else {
+        res.json(category)
+    }
+}
+
+exports.getCategory = async (req, res) => {
+    const category = await Category.query()
         .findOne('id', req.params.categoryId)
-        .then(result => res.json(result))
 
+    category.childrens = await Category.query()
+        .where('parent_id', category.id)
+
+    for (let child of category.childrens) {
+        child.childrens = await Category.query()
+            .where('parent_id', child.id)
+    }
+
+    const fetchParent = async (category, parent) => {
+
+        category.parent = await Category.query()
+            .findOne('id', parent)
+
+        if (category.parent && category.parent.parent_id)
+            await fetchParent(category.parent, category.parent.parent_id)
+    }
+
+    await fetchParent(category, category.parent_id)
+
+    res.json(category)
+}
+
+exports.update = async (req, res) => {
+    const category = await Category.query()
+        .patchAndFetchById(req.params.categoryId, {
+            name: req.body.name,
+            image: req.body.image ?? null,
+            parent_id: req.body.parent ?? null
+        })
+
+    if (req.files && req.files.file) {
+        const file = req.files.file
+        file.mv('public/' + file.name, async (err) => {
+            if (err) return res.status(500).json(err)
+            var path = 'http://' + req.hostname + ':' + req.socket.localPort + '/' + file.name
+            
+            Category.query()
+                .patchAndFetchById(category.id, {
+                    image: path
+                })
+                .then(result => res.json(result))
+        })
+    } else {
+        res.json(category)
+    }
+}
+
+exports.delete = (req, res) => {
+    Category.query()
+        .deleteById(req.params.categoryId)
+        .then(result => res.json(result))
 }
 
 exports.getProducts = async (req, res) => {
