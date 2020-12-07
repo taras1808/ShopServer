@@ -43,7 +43,8 @@ exports.create = async (req, res) => {
             name: req.body.name,
             price: req.body.price,
             old_price: req.body.old_price,
-            category_id: req.body.category_id
+            category_id: req.body.category_id,
+            info: req.body.info
         })
 
     JSON.parse(req.body.options).forEach(async e => {
@@ -123,7 +124,8 @@ exports.update = async (req, res) => {
             name: req.body.name,
             price: req.body.price,
             old_price: req.body.old_price,
-            category_id: req.body.category_id
+            category_id: req.body.category_id,
+            info: req.body.info
         })
 
     await Product.relatedQuery('options').for(product).unrelate()
