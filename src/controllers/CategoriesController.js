@@ -9,14 +9,30 @@ exports.getCategories = (req, res) => {
 }
 
 exports.getRootCategories = async (req, res) => {
-    const categories = await Category.query()
-        .whereNull('parent_id')
 
-    for (let category of categories) {
-        category.childrens = await Category.query()
-            .where('parent_id', category.id)
+    async function getChildrens(categories) {
+        for (let category of categories) {
+            category.childrens = await Category.query()
+                .where('parent_id', category.id)
+                .orderBy('order')
+
+            await getChildrens(category.childrens)
+        }
     }
 
+    let query = Category.query()
+        .orderBy('order')
+
+    if (req.query.categoryId) {
+        query = query.where('parent_id', req.query.categoryId)
+    } else {
+        query = query.whereNull('parent_id')
+    }
+
+    const categories = await query
+    
+    await getChildrens(categories)
+    
     res.json(categories)
 }
 
@@ -44,16 +60,30 @@ exports.create = async (req, res) => {
     }
 }
 
+exports.updateCategories = async (req, res) => {
+    Promise.all(
+        req.body.categories.map(async (categoryId, index) => {
+            await Category.query()
+                .findById(categoryId)
+                .patch({
+                    order: index
+                })
+        })
+    ).then(_ => res.json({}))
+}
+
 exports.getCategory = async (req, res) => {
     const category = await Category.query()
         .findOne('id', req.params.categoryId)
 
     category.childrens = await Category.query()
         .where('parent_id', category.id)
+        .orderBy('order')
 
     for (let child of category.childrens) {
         child.childrens = await Category.query()
             .where('parent_id', child.id)
+            .orderBy('order')
     }
 
     const fetchParent = async (category, parent) => {
@@ -98,6 +128,32 @@ exports.update = async (req, res) => {
 exports.delete = (req, res) => {
     Category.query()
         .deleteById(req.params.categoryId)
+        .then(result => res.json(result))
+}
+
+
+exports.getRootsCategories = async (req, res) => {
+
+    async function getChildrens(categories, arr) {
+        for (let category of categories) {
+            const childrens = await Category.query()
+                .select('id')
+                .where('parent_id', category.id)
+            arr.push(...childrens.map(e => e.id))
+            await getChildrens(childrens, arr)
+        }
+    }
+
+    const category = await Category.query()
+        .select('id')
+        .findOne('id', req.params.categoryId)
+
+    const arr = [category.id]
+
+    await getChildrens([category], arr)
+
+    Category.query()
+        .whereNotIn('id', arr)
         .then(result => res.json(result))
 }
 
