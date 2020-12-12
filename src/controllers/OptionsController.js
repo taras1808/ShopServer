@@ -16,6 +16,13 @@ exports.create = (req, res) => {
         .then(result => res.json(result))
 }
 
+exports.getOption = (req, res) => {
+    Option.query()
+        .findOne('id', req.params.optionId)
+        .withGraphFetched('filter')
+        .then(result => res.json(result))
+}
+
 exports.update = (req, res) => {
     Option.query()
         .patchAndFetchById(req.params.optionId, {

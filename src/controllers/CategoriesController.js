@@ -236,6 +236,7 @@ exports.getFilters = async (req, res) => {
         switch (filter.type) {
             case 0:
                 const options = await Filter.relatedQuery('options')
+                    .orderBy('value')
                     .for(filter)
                 const exist = []
                 for (let option of options) {
