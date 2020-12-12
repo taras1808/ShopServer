@@ -9,8 +9,8 @@ exports.getProducts = (req, res) => {
 
     Product.query()
         .withGraphFetched('[category, images]')
+        .where('category_id', req.query.categoryId ?? null)
         .then(result => res.json(result))
-
 }
 
 exports.getOptions = (req, res) => {
@@ -18,7 +18,6 @@ exports.getOptions = (req, res) => {
     Product.relatedQuery('options')
         .for(req.params.productId)
         .then(result => res.json(result))
-
 }
 
 exports.create = async (req, res) => {
@@ -123,9 +122,9 @@ exports.update = async (req, res) => {
         .patchAndFetchById(req.params.productId, {
             name: req.body.name,
             price: req.body.price,
-            old_price: req.body.old_price,
-            category_id: req.body.category_id,
-            info: req.body.info
+            old_price: req.body.old_price ?? null,
+            category_id: req.body.category_id ?? null,
+            info: req.body.info ?? null
         })
 
     await Product.relatedQuery('options').for(product).unrelate()

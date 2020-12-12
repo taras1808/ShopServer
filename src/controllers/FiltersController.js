@@ -4,7 +4,12 @@ const Option = require('../models/Option')
 exports.getFilters = (req, res) => {
 
     let query = Filter.query()
-        .withGraphFetched('[options, categories]')
+        .withGraphFetched('[options(orderBy), categories]')
+        .modifiers({
+            orderBy(builder) {
+              builder.orderBy('value');
+            }
+        })
         .where('type', 0)
 
     if (req.query.categoryId) {
@@ -30,6 +35,16 @@ exports.create = async (req, res) => {
         .relate(req.body.categories)
 
     res.json(filter)
+}
+
+exports.getFilter = (req, res) => {
+
+    Filter.query()
+        .findOne('id',req.params.filterId)
+        .withGraphFetched('[categories]')
+        .where('type', 0)
+        .then(result => res.json(result))
+
 }
 
 exports.update = async (req, res) => {
