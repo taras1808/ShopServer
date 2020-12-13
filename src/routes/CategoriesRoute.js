@@ -16,5 +16,6 @@ router.get("/:categoryId/roots", categoriesController.getRootsCategories)
 router.get("/:categoryId/products", categoriesController.getProducts)
 
 router.get("/:categoryId/fitlers", categoriesController.getFilters)
+router.put("/:categoryId/fitlers", categoriesController.updateFilters)
 
 module.exports = router

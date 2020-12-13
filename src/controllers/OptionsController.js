@@ -3,7 +3,13 @@ const Option = require('../models/Option')
 
 exports.getOptions = (req, res) => {
     Option.query()
-        .withGraphFetched('filter')
+        .withGraphFetched('filter(withCategories)')
+        .modifiers({
+            withCategories(builder) {
+                builder.withGraphFetched('categories');
+            }
+        })
+        .orderBy('value')
         .then(result => res.json(result))
 }
 
