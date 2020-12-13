@@ -6,10 +6,10 @@ const { raw } = require('objection');
 
 
 exports.getProducts = (req, res) => {
-
     Product.query()
         .withGraphFetched('[category, images]')
         .where('category_id', req.query.categoryId ?? null)
+        .orderBy('name')
         .then(result => res.json(result))
 }
 

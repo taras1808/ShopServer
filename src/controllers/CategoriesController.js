@@ -2,9 +2,11 @@ const Category = require('../models/Category')
 const Product = require('../models/Product')
 const Filter = require('../models/Filter')
 const Option = require('../models/Option')
+const CategoryFilters = require('../models/CategoryFilters')
 
 exports.getCategories = (req, res) => {
     Category.query()
+        .orderBy('name')
         .then(result => res.json(result))
 }
 
@@ -230,7 +232,7 @@ exports.getFilters = async (req, res) => {
 
     const filters = await Category.relatedQuery('filters')
         .for(req.params.categoryId)
-        .orderBy('id')
+        .orderBy('order')
 
     for (let filter of filters) {
         switch (filter.type) {
@@ -336,4 +338,14 @@ exports.getFilters = async (req, res) => {
         }
     }
     res.json(filters)
+}
+
+exports.updateFilters = async (req, res) => {
+    Promise.all(
+        req.body.filters.map(async (filterId, index) => {
+            await CategoryFilters.query()
+                .findById([req.params.categoryId, filterId])
+                .patch({ order: index })
+        })
+    ).then(_ => res.json({}))
 }
