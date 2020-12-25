@@ -4,17 +4,21 @@ const Option = require('../models/Option')
 exports.getFilters = (req, res) => {
 
     let query = Filter.query()
-        .withGraphFetched('[options(orderBy), categories]')
+        .withGraphFetched('[options(optionsOrderBy), categories(categoriesOrderBy)]')
         .modifiers({
-            orderBy(builder) {
+            optionsOrderBy(builder) {
               builder.orderBy('value');
-            }
+            },
+            categoriesOrderBy(builder) {
+                builder.orderBy('order');
+            },
         })
         // .where('type', 0)
 
     if (req.query.categoryId) {
         query = query.joinRelated('categories')
             .where('category_id', req.query.categoryId)
+            .orderBy('categories_join.order')
     }
 
     query.then(result => res.json(result))
