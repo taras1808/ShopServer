@@ -202,7 +202,7 @@ exports.getProducts = async (req, res) => {
     let query = Product.query()
         .withGraphFetched('images')
         .where('category_id', req.params.categoryId)
-        .page(req.query.page ?? 0, 3)
+        .page(req.query.page ?? 0, 6)
         .orderBy(orderBy, order)
 
     for (let filter of filters) {

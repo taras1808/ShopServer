@@ -10,7 +10,7 @@ exports.getFilters = (req, res) => {
               builder.orderBy('value');
             }
         })
-        .where('type', 0)
+        // .where('type', 0)
 
     if (req.query.categoryId) {
         query = query.joinRelated('categories')
@@ -42,7 +42,7 @@ exports.getFilter = (req, res) => {
     Filter.query()
         .findOne('id',req.params.filterId)
         .withGraphFetched('[categories]')
-        .where('type', 0)
+        // .where('type', 0)
         .then(result => res.json(result))
 
 }
@@ -75,6 +75,7 @@ exports.delete = (req, res) => {
 exports.getOptions = (req, res) => {
 
     Filter.relatedQuery('options')
+        .orderBy('value')
         .for(req.params.filterId)
         .then(result => res.json(result))
 

@@ -161,7 +161,7 @@ exports.getProducts = async (req, res) => {
         .orderBy('id')
 
     let query = Product.query()
-        .page(req.query.page ?? 0, 3)
+        .page(req.query.page ?? 0, 6)
         .orderBy(orderBy, order)
         .withGraphFetched('images')
         .where(raw('lower("product"."name")'), 'like', `%${req.query.q ? req.query.q.toLowerCase() : ''}%`)
