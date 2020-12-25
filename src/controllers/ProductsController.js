@@ -40,8 +40,8 @@ exports.create = async (req, res) => {
     const product = await Product.query()
         .insertAndFetch({
             name: req.body.name,
-            price: req.body.price,
-            old_price: req.body.old_price,
+            price: parseInt(req.body.price),
+            old_price: parseInt(req.body.old_price),
             category_id: req.body.category_id,
             info: req.body.info
         })
