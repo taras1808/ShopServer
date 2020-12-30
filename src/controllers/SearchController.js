@@ -168,6 +168,7 @@ exports.getProducts = async (req, res) => {
 
     for (let filter of filters) {
         const queryParams = req.query[filter.name]
+
         if (!queryParams) continue
 
         switch (filter.type) {

@@ -1,6 +1,7 @@
 const express = require('express')
 const fileUpload = require('express-fileupload')
 const bodyParser = require('body-parser')
+const cookieParser = require('cookie-parser')
 const apiRouter = require('./src/routes/ApiRoute')
 const db = require('./src/models/Knex')
 
@@ -18,6 +19,7 @@ app.all('/*', function(req, res, next) {
 // 	setTimeout(function(){ next() }, 100);
 // })
 
+app.use(cookieParser())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(express.static('public'))
