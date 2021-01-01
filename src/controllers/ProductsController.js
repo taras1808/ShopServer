@@ -1,6 +1,7 @@
 const Product = require('../models/Product')
 const Category = require('../models/Category')
 const Option = require('../models/Option')
+const User = require('../models/User')
 const Knex = require('../models/Knex');
 const { raw } = require('objection');
 
@@ -70,7 +71,7 @@ exports.getProduct = async (req, res) => {
     const product = await Product.query()
         .withGraphFetched('[category, images, options]')
         .findOne('product.id', req.params.productId)
-    
+
     const fetchParent = async (category, parent) => {
 
         category.parent = await Category.query()
@@ -96,6 +97,13 @@ exports.getProduct = async (req, res) => {
         .where('category_id', product.category_id)
         .withGraphFetched('images')
         .whereNot('id', product.id)
+
+
+    if (req.user) {
+        product.favourite = await User.relatedQuery('favourite')
+            .for(req.user)
+            .findOne('id', product.id) ? true : false
+    }
 
     res.json(product)
 }
