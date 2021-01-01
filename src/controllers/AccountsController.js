@@ -30,3 +30,26 @@ exports.login = async (req, res) => {
 
     res.json({ ...user, token: jwtToken })
 }
+
+exports.getFavourite = async (req, res) => {
+	User.relatedQuery('favourite')
+		.for(req.params.userId)
+		.page(req.query.page ?? 0, 6)
+		.withGraphFetched('images')
+		.then(result => res.json(result))
+}
+
+exports.addFavourite = async (req, res) => {
+	User.relatedQuery('favourite')
+		.for(req.params.userId)
+		.relate(req.body.productId)
+		.then(_ => res.json({}))
+}
+
+exports.removeFavourite = async (req, res) => {
+	User.relatedQuery('favourite')
+		.for(req.params.userId)
+		.unrelate()
+		.where('product_id', req.body.productId)
+		.then(_ => res.json({}))
+}
