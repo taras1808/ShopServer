@@ -5,7 +5,7 @@ const jwt = require('../middlewares/JwtMiddleware')
 router.get("/", productsController.getProducts)
 router.post("/", productsController.create)
 
-router.use(jwt.jwt)
+router.use("/:productId", jwt.jwt)
 router.get("/:productId", productsController.getProduct)
 router.put("/:productId", productsController.update)
 router.delete("/:productId", productsController.delete)
