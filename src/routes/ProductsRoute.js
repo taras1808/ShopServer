@@ -1,15 +1,20 @@
 const router = require('express').Router()
 const productsController = require('../controllers/ProductsController')
-const jwt = require('../middlewares/JwtMiddleware')
+const jwtMiddleware = require('../middlewares/JwtMiddleware')
+const roleMiddleware = require('../middlewares/RoleMiddleware')
 
 router.get("/", productsController.getProducts)
-router.post("/", productsController.create)
+router.get("/:productId/options", productsController.getOptions)
 
-router.use("/:productId", jwt.jwt)
+router.use(jwtMiddleware.optional)
+
 router.get("/:productId", productsController.getProduct)
+
+router.use(jwtMiddleware.required)
+router.use(roleMiddleware.onlyAdmins)
+
+router.post("/", productsController.create)
 router.put("/:productId", productsController.update)
 router.delete("/:productId", productsController.delete)
-
-router.get("/:productId/options", productsController.getOptions)
 
 module.exports = router

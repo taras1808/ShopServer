@@ -10,14 +10,9 @@ app.use(fileUpload())
 
 app.all('/*', function(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*")
-	return next()
-})
-
-app.options('/*', function(req, res, next) {
-	res.header("Access-Control-Allow-Origin", "*")
 	res.header("Access-Control-Allow-Headers", "*")
 	res.header("Access-Control-Allow-Methods", "*")
-	return res.end()
+	return next()
 })
 
 // app.use('/*', function(req, res, next) {

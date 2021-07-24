@@ -15,8 +15,15 @@ const { raw } = require('objection');
 
 exports.getFilters = async (req, res) => {
 
-    const filters = await Filter.query()
+    const categories = (await Category.query()
+        .withGraphJoined('childrens'))
+            .filter(e => e.childrens.length === 0)
+
+    const allFilters = await Filter.query()
+        .withGraphJoined('categories')
         .orderBy('id')
+
+    const filters = allFilters.filter(e => e.categories.length === parseInt(categories.length))
 
     for (let filter of filters) {
         switch (filter.type) {

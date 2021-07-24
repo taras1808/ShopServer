@@ -33,6 +33,14 @@ class Category extends Model {
 					to: 'filter.id'
 				}
 			},
+			childrens: {
+				relation: Model.HasManyRelation,
+				modelClass: Category,
+				join: {
+					from: 'category.id',
+					to: 'category.parent_id'
+				}
+			},
 		}
 	}
 }
