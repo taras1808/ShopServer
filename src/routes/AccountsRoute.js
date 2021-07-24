@@ -1,10 +1,14 @@
 const router = require('express').Router()
 const accountsController = require('../controllers/AccountsController')
+const jwtMiddleware = require('../middlewares/JwtMiddleware')
 
-router.post('/login', accountsController.login)
+router.post('/register', accountsController.register)
+router.post('/authenticate', accountsController.authenticate)
 
-router.get('/:userId/favourite', accountsController.getFavourite)
-router.post('/:userId/favourite', accountsController.addFavourite)
-router.delete('/:userId/favourite', accountsController.removeFavourite)
+router.use('/favourite', jwtMiddleware.required)
+
+router.get('/favourite', accountsController.getFavourite)
+router.post('/favourite', accountsController.addFavourite)
+router.delete('/favourite', accountsController.removeFavourite)
 
 module.exports = router
